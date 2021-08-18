@@ -7,12 +7,12 @@ The required headings for the data are ```city``` followed by any series of date
 Pressing submit on any template will rerun the generation of the visualization, allowing for setting to be adapted and the visualization updated. 
 
 ## K-means Clustering
-[Live Link](https://datacult.github.io/Casa-Lumbre-Templates/k-means.html)
+[Live Link](https://datacult.github.io/Casa-Lumbre-Templates/k-means.html)  
 The k-means clustering model helps to 'group' or 'cluster' cities with common attributes together. Assigning the number of clusters to half the total number of cities should result in cities being grouped into pairs. Experimenting with the number of clusters may results in better groupings. 
 The best cluster to select for use in an experiment will have a close similarity in depletion data, however higher numbers of depletions will also help with seeing the effects of the experiment.
 
 ## Difference-In-Difference
-[Live Link](https://datacult.github.io/Casa-Lumbre-Templates/)
+[Live Link](https://datacult.github.io/Casa-Lumbre-Templates/)  
 The difference-in-difference tracker is designed to track a 'control' and 'experiment' group. A variance band will show the variation between the two cities **before the start of the experiment**. Variance can be calculated as the maximum variation in any single time period or as the average variation. If the line of the experiment city varies outside of the band after the start of the experiment, this indicates a change in behavior (although this does not necessarily indicate a statistically significant difference).
 
 The 'flatten baseline' checkbox is a secondary view that can help to show the variation of the experiment city purely in relation to the control city (and not overall depletions).
