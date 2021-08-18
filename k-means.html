@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: rgb(255, 255, 250);
+            margin: 0;
+            font-size: 12px;
+
+        }
+
+        h1 {
+            margin: 0;
+            padding: 10px 0 10px 2%;
+            background-color: #29516E;
+            color: white;
+
+        }
+
+        div.tooltip {
+            position: absolute;
+            padding: 10px;
+            font: 12px sans-serif;
+            background: white;
+            border: 1px;
+            border-radius: 3px;
+            pointer-events: none;
+            border-style: solid;
+        }
+
+        #vis-container {
+            margin: 0
+        }
+
+        p {
+            font-size: 14px;
+
+        }
+
+        rect,
+        path,
+        line {
+            transition: all 0.5s ease-in-out;
+        }
+
+        .grid {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.8em;
+            font-weight: 300;
+        }
+
+        .grid path {
+            color: rgba(0, 0, 0, 0)
+        }
+
+        .grid line {
+            color: lightgrey
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            width: 100%;
+            /* height: 100vh; */
+            justify-content: space-evenly;
+        }
+
+        #linechart {
+            margin: 2%;
+            display: flex;
+            flex-direction: column;
+            flex-basis: 100%;
+            flex: 2;
+        }
+
+        #scatter {
+            margin: 2%;
+            display: flex;
+            flex-direction: column;
+            flex-basis: 100%;
+            flex: 1;
+        }
+
+        #selectContainer {
+            padding: 40px 0 0 50px;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .container {
+                display: block;
+            }
+
+            #linechart {
+                width: 100vw;
+            }
+
+            #scatter {
+                width: 100vw;
+
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Casa Lumbre K-means Clustering</h1>
+    <div class="data-load">
+        <form onsubmit="return loadData()">
+            <label for="data-entry">Copy and Paste Data Here:</label>
+            <br>
+            <textarea id="data-entry" name="data-load" rows="10" style="width: 100%;"></textarea>
+            <br>
+            <label for="cluster-entry">Number of Clusters:</label>
+            <input type="number" id="cluster-entry" name="clusters" value="5" size="2">
+            <div class="data-type-group">
+                <input type="radio" id="tsv" name="data-type-select" value="tsv" checked>TSV
+                <input type="radio" id="csv" name="data-type-select" value="csv">CSV
+            </div>
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+    <div class="container">
+        <div id="linechart"></div>
+    </div>
+</body>
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script>
+    function loadData() {
+        let raw = document.getElementById("data-entry").value;
+        let tsv = document.getElementById('tsv').checked;
+        let data = tsv == true ? d3.tsvParse(raw) : d3.csvParse(raw)
+
+        //keys to use as metrics
+        let keys = Object.keys(data[0])
+        const keys_to_exclude = ["city"]
+        keys = keys.filter(d => keys_to_exclude.indexOf(d) == -1)
+
+        const vectors = data.map(d => {
+            return keys.map(x => +d[x])
+        })
+
+        console.log(vectors)
+
+        var clusters = figue.kmeans(document.getElementById("cluster-entry").value, vectors);
+
+        if (clusters != null) data.forEach((d, i) => d.group = clusters.assignments[i])
+
+        linechart(data)
+
+        return false;
+
+    }
+</script>
+<script src="js/figue.js"></script>
+<script src="js/linechart.js"></script>
+
+</html>

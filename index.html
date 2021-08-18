@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;300;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Oswald', sans-serif;
+            color: white;
+            background-color: black;
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+        }
+
+        h1 {
+            margin: 0;
+            padding: 10px 0 10px 2%;
+            background-color: #29516E;
+            color: white;
+            text-align: center;
+            font-weight: 200;
+            text-transform: uppercase;
+        }
+
+        div.tooltip {
+            position: absolute;
+            padding: 10px;
+            font: 12px sans-serif;
+            background: white;
+            border: 1px;
+            border-radius: 3px;
+            pointer-events: none;
+            border-style: solid;
+            color:black;
+        }
+
+        #vis-container {
+            margin: 0
+        }
+
+        p {
+            font-size: 14px;
+
+        }
+
+        rect,
+        path,
+        line,
+        circle {
+            transition: all 0.5s ease-in-out;
+        }
+
+        .grid {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            font-weight: 300;
+        }
+
+        .grid path {
+            color: rgba(0, 0, 0, 0)
+        }
+
+        .grid line {
+            color: #919191;
+        }
+
+        .container {
+            margin: 0;
+            padding: 50px;
+            width: 100%;
+            background-color: pink;
+            /* height: 100vh; */
+            justify-content: space-evenly;
+        }
+
+        #didchart {
+            background-color: rgba(235, 229, 213, 0.6);
+        }
+
+        #selectContainer {
+            padding: 40px 0 0 50px;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .container {
+                display: block;
+            }
+
+            #linechart {
+                width: 100vw;
+            }
+
+            #scatter {
+                width: 100vw;
+
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="img" data-uri="7c9fc4_0d6efed0e16449efbe32108d6baab698~mv2.jpg" data-width="1500" data-height="923"
+        style="width: 100%; padding:20px; text-align:center; background: url(&quot;https://static.wixstatic.com/media/7c9fc4_0d6efed0e16449efbe32108d6baab698~mv2.jpg/v1/fill/w_1500,h_923,al_c,q_85,usm_0.66_1.00_0.01/7c9fc4_0d6efed0e16449efbe32108d6baab698~mv2.jpg&quot;) center center / cover no-repeat;">
+        <img src="https://static.wixstatic.com/media/e9e7fa_388cd4ae3baf4db9bdf1d59e3b72aad2~mv2.png/v1/fill/w_826,h_570,al_c,q_90,usm_0.66_1.00_0.01/e9e7fa_388cd4ae3baf4db9bdf1d59e3b72aad2~mv2.webp"
+            alt="" style="height:200px;" />
+    </div>
+    <h1>Difference-in-Difference</h1>
+    <div class="container" data-uri="7c9fc4_926cdfa4251a454f82fe9423074b787d~mv2.jpg" data-width="1500"
+        data-height="844"
+        style="height: 865px; width: 100%; background: url(&quot;https://static.wixstatic.com/media/7c9fc4_926cdfa4251a454f82fe9423074b787d~mv2.jpg/v1/fill/w_1500,h_844,al_c,q_85,usm_0.66_1.00_0.01/7c9fc4_926cdfa4251a454f82fe9423074b787d~mv2.jpg&quot;) 50% center / cover no-repeat;">
+        <div class="data-load">
+            <form onsubmit="return loadData()">
+                <label for="data-entry">Copy and Paste Data Here:</label>
+                <br>
+                <textarea id="data-entry" name="data-load" rows="10" style="width: 100%;"></textarea>
+                <br>
+                <div class="data-type-group">
+                    <input type="radio" id="tsv" name="data-type-select" value="tsv" checked>TSV
+                    <input type="radio" id="csv" name="data-type-select" value="csv">CSV
+                </div>
+                <label for="start-date">Experiment Start Date:</label>
+                <input id="start-date" name="start-date"></input><br>
+                <label for="control">Control City (no media):</label>
+                <input id="control" name="control"></input><br>
+                <div class="variance-type-group">
+                    Variance band calculation:
+                    <input type="radio" id="average" name="variance-type-select" value="average" checked>Average
+                    <input type="radio" id="maximum" name="variance-type-select" value="maximum">Maximum
+                </div>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+
+        <input type="checkbox" id="normalize" name="normalize" value="false">
+        <label for="normalize" style="color:white">Flatten Baseline</label><br>
+        <div id="didchart"></div>
+    </div>
+</body>
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script src="js/figue.js"></script>
+<script src="js/DIDchart.js"></script>
+
+<script>
+    function loadData() {
+
+        let start_date = document.getElementById("start-date").value;
+        let raw = document.getElementById("data-entry").value;
+        let control = document.getElementById("control").value;
+
+        if (raw == '') {
+            window.alert('No Data Provided')
+        } else if (start_date == '') {
+            window.alert('Experiment Start Date has not been provided')
+        } else if (control == '') {
+            window.alert('Control city has not been provided')
+        } else {
+            let tsv = document.getElementById('tsv').checked;
+            let data = tsv == true ? d3.tsvParse(raw) : d3.csvParse(raw)
+            let variance_type = document.getElementById('maximum').checked ? 'maximum' : 'average';
+
+
+            let cities = data.map(d => d.city)
+            if (cities.includes(control)){
+                if (cities.length == 2){
+                    didchart(data, new Date(start_date), control, variance_type)
+                } else {
+                    window.alert("Only two cities should be provided for a Difference-in-Difference test")
+                }
+            } else {
+                window.alert("Control city does not match your data. Please check the spelling and any capital letters match")
+            }
+        }
+
+        return false;
+
+    }
+</script>
+
+</html>
