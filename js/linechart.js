@@ -96,10 +96,11 @@ function linechart(data, update = false, selector = '#linechart') {
             .range([0, width])
             .domain(d3.extent(dates.map(d => new Date(d))))
 
-        // abritrary Y scale for health metrics
-        const y = d3.scaleSymlog()
+        let values = wrangled.map(d => d.values.map(x => parseFloat(x.value))).flat()
+
+        const y = d3.scaleLinear()
             .range([height, 0])
-            .domain([0,5])
+            .domain(d3.extent(values))
 
         //band scale
         const legend = d3.scaleBand()
@@ -141,7 +142,7 @@ function linechart(data, update = false, selector = '#linechart') {
             .call(yAxis.tickSize(-width))
 
         ////////////////////////////////////
-        ////////// health tracker///////////
+        ////////// lines ///////////////////
         ////////////////////////////////////
 
         // line generator
@@ -205,7 +206,7 @@ function linechart(data, update = false, selector = '#linechart') {
             .data(wrangled.map(d => d.values).flat())
             .join("circle")
             .attr("fill", d => color(d.group))
-            .attr('cx', d => x(d.metric))
+            .attr('cx', d => x(new Date(d.metric)))
             .attr('cy', d => y(d.value))
             .attr('r', d => 3)
             .on("mouseover", function (event, d) {
